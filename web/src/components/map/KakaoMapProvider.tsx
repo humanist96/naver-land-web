@@ -5,9 +5,10 @@ import { createContext, useContext, useState } from 'react'
 
 interface KakaoMapContextType {
   isLoaded: boolean
+  error: string | null
 }
 
-const KakaoMapContext = createContext<KakaoMapContextType>({ isLoaded: false })
+const KakaoMapContext = createContext<KakaoMapContextType>({ isLoaded: false, error: null })
 
 export function useKakaoMap() {
   return useContext(KakaoMapContext)
@@ -15,17 +16,33 @@ export function useKakaoMap() {
 
 export function KakaoMapProvider({ children }: { children: React.ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const appKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY || ''
 
+  if (!appKey) {
+    return (
+      <KakaoMapContext.Provider value={{ isLoaded: false, error: 'KAKAO_MAP_KEY 미설정' }}>
+        {children}
+      </KakaoMapContext.Provider>
+    )
+  }
+
   return (
-    <KakaoMapContext.Provider value={{ isLoaded }}>
+    <KakaoMapContext.Provider value={{ isLoaded, error }}>
       <Script
         src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&libraries=clusterer&autoload=false`}
         strategy="afterInteractive"
         onLoad={() => {
-          window.kakao.maps.load(() => {
-            setIsLoaded(true)
-          })
+          if (window.kakao?.maps?.load) {
+            window.kakao.maps.load(() => {
+              setIsLoaded(true)
+            })
+          } else {
+            setError('Kakao Maps SDK 로드 실패')
+          }
+        }}
+        onError={() => {
+          setError('Kakao Maps 스크립트 로드 실패')
         }}
       />
       {children}
