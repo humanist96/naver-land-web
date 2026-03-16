@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+.pnp.*
+
+# Next.js
+web/.next/
+web/out/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# bkit internal
+.bkit/

@@ -1,0 +1,10 @@
+{
+  "naver-land-web": {
+    "phase": "archived",
+    "matchRate": 90,
+    "iterationCount": 2,
+    "startedAt": "2026-03-16T04:00:00Z",
+    "archivedAt": "2026-03-16T14:00:00Z",
+    "archivedTo": "docs/archive/2026-03/naver-land-web/"
+  }
+}
