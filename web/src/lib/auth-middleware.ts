@@ -5,19 +5,18 @@ import { AUTH } from '@/domain/constants'
 import type { User, UserRole, UserStatus } from '@/types/user'
 import type { ApiResponse } from '@/types/api'
 
-function getJwtSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET
-  if (!secret) {
-    throw new Error('JWT_SECRET 환경변수가 설정되지 않았습니다.')
-  }
-  return new TextEncoder().encode(secret)
-}
+let _jwtSecret: Uint8Array | null = null
 
-const JWT_SECRET = new Proxy({} as Uint8Array, {
-  get(_target, prop, receiver) {
-    return Reflect.get(getJwtSecret(), prop, receiver)
-  },
-}) as Uint8Array
+function getJwtSecret(): Uint8Array {
+  if (!_jwtSecret) {
+    const secret = process.env.JWT_SECRET
+    if (!secret) {
+      throw new Error('JWT_SECRET 환경변수가 설정되지 않았습니다.')
+    }
+    _jwtSecret = new TextEncoder().encode(secret)
+  }
+  return _jwtSecret
+}
 
 export interface JwtPayload {
   userId: string
@@ -31,7 +30,7 @@ export async function signAccessToken(payload: JwtPayload): Promise<string> {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(AUTH.ACCESS_TOKEN_EXPIRY)
-    .sign(JWT_SECRET)
+    .sign(getJwtSecret())
 }
 
 export async function signRefreshToken(payload: JwtPayload): Promise<string> {
@@ -39,12 +38,12 @@ export async function signRefreshToken(payload: JwtPayload): Promise<string> {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime(AUTH.REFRESH_TOKEN_EXPIRY)
-    .sign(JWT_SECRET)
+    .sign(getJwtSecret())
 }
 
 export async function verifyToken(token: string): Promise<JwtPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET)
+    const { payload } = await jwtVerify(token, getJwtSecret())
     return payload as unknown as JwtPayload
   } catch {
     return null
