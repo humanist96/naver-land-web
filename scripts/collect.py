@@ -3,6 +3,7 @@
 네이버 부동산 매물 수집 스크립트 (GitHub Actions)
 네이버 API를 직접 호출 (CLI 의존성 제거)
 """
+from __future__ import annotations
 
 import json
 import os
@@ -13,7 +14,7 @@ import time
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Optional
 
 try:
     from supabase import create_client, Client
@@ -94,20 +95,36 @@ def fetch_naver(district: str, trade_types: list[str], limit: int = 500) -> list
             "sec-ch-ua-platform": '"macOS"',
         }
 
-        try:
-            req = urllib.request.Request(url, headers=headers)
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                data = json.loads(resp.read())
-                body = data.get("body", [])
-                if not body:
+        retries = 0
+        success = False
+        while retries < 3 and not success:
+            try:
+                req = urllib.request.Request(url, headers=headers)
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    data = json.loads(resp.read())
+                    body = data.get("body", [])
+                    if not body:
+                        success = True
+                        break
+                    all_articles.extend(body)
+                    page += 1
+                    success = True
+                    delay = random.uniform(1.3, 1.8)
+                    time.sleep(delay)
+            except urllib.error.HTTPError as e:
+                if e.code in (307, 429, 403):
+                    retries += 1
+                    wait = 30 * retries + random.uniform(5, 15)
+                    print(f"  차단 감지 ({e.code}), {wait:.0f}초 대기 후 재시도 ({retries}/3)")
+                    time.sleep(wait)
+                else:
+                    print(f"  API 호출 실패 (page {page}): {e}")
                     break
-                all_articles.extend(body)
-                page += 1
-                # anti-blocking 딜레이
-                delay = random.uniform(3.0, 6.0)
-                time.sleep(delay)
-        except Exception as e:
-            print(f"  API 호출 실패 (page {page}): {e}")
+            except Exception as e:
+                print(f"  API 호출 실패 (page {page}): {e}")
+                break
+        if not success and retries >= 3:
+            print(f"  3회 재시도 실패, 다음 구로 이동")
             break
 
     return all_articles[:limit]
@@ -285,7 +302,7 @@ def save_market_snapshot(articles: list[dict], changes_count: int, district_code
         print(f"  스냅샷 저장 실패: {e}")
 
 
-def update_job(job_id: str, status: str, total: int, changes: int, error: str | None = None):
+def update_job(job_id: str, status: str, total: int, changes: int, error: Optional[str] = None):
     try:
         db.table("collection_jobs").update({
             "last_run_at": datetime.now(timezone.utc).isoformat(),
@@ -315,6 +332,11 @@ def main():
         snapshot_id = f"snap-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}-{job['id'][:8]}"
 
         print(f"[{i+1}/{len(jobs)}] {city} {district} ({', '.join(trade_types)})")
+
+        # 이미 수집된 구는 건너뛰기
+        if job.get("last_status") == "success" and (job.get("total_count") or 0) > 0:
+            print(f"  이미 수집됨 ({job['total_count']}건), 건너뜀")
+            continue
 
         try:
             # 1. 네이버 API 직접 호출
@@ -350,7 +372,7 @@ def main():
             print(f"  실패: {e}\n")
             update_job(job["id"], "failed", 0, 0, str(e)[:500])
 
-        # 구 간 딜레이 (anti-blocking)
+        # 구 간 딜레이 (anti-blocking 강화)
         if i < len(jobs) - 1:
             delay = random.uniform(8.0, 15.0)
             print(f"  다음 구까지 {delay:.0f}초 대기...")
