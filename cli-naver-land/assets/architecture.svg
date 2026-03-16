@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420">
+  <defs>
+    <linearGradient id="layer1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2EC4B6;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#20A4F3;stop-opacity:0.15" />
+    </linearGradient>
+    <linearGradient id="layer2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#A78BFA;stop-opacity:0.15" />
+    </linearGradient>
+    <linearGradient id="layer3" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:0.15" />
+      <stop offset="100%" style="stop-color:#FBBF24;stop-opacity:0.15" />
+    </linearGradient>
+    <linearGradient id="arrow-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2EC4B6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#20A4F3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="700" height="420" rx="10" fill="#0D1117"/>
+  <!-- Title -->
+  <text x="350" y="30" font-family="system-ui, sans-serif" font-size="15" fill="#E2E8F0" text-anchor="middle" font-weight="700">System Architecture</text>
+  <!-- Layer 1: CLI -->
+  <rect x="40" y="50" width="620" height="70" rx="8" fill="url(#layer1)" stroke="#2EC4B6" stroke-width="1" stroke-opacity="0.4"/>
+  <text x="60" y="72" font-family="system-ui, sans-serif" font-size="12" fill="#2EC4B6" font-weight="700">CLI Layer</text>
+  <text x="60" y="88" font-family="monospace" font-size="10" fill="#64748B">Click Framework</text>
+  <!-- CLI modules -->
+  <rect x="200" y="60" width="80" height="28" rx="5" fill="#2EC4B6" opacity="0.2"/>
+  <text x="240" y="79" font-family="monospace" font-size="10" fill="#2EC4B6" text-anchor="middle">nlq</text>
+  <rect x="290" y="60" width="110" height="28" rx="5" fill="#2EC4B6" opacity="0.2"/>
+  <text x="345" y="79" font-family="monospace" font-size="10" fill="#2EC4B6" text-anchor="middle">search region</text>
+  <rect x="410" y="60" width="120" height="28" rx="5" fill="#2EC4B6" opacity="0.2"/>
+  <text x="470" y="79" font-family="monospace" font-size="10" fill="#2EC4B6" text-anchor="middle">search complex</text>
+  <rect x="540" y="60" width="60" height="28" rx="5" fill="#2EC4B6" opacity="0.2"/>
+  <text x="570" y="79" font-family="monospace" font-size="10" fill="#2EC4B6" text-anchor="middle">export</text>
+  <rect x="610" y="60" width="40" height="28" rx="5" fill="#2EC4B6" opacity="0.2"/>
+  <text x="630" y="79" font-family="monospace" font-size="10" fill="#2EC4B6" text-anchor="middle">repl</text>
+  <text x="200" y="108" font-family="monospace" font-size="9" fill="#475569">--json output  |  interactive REPL  |  session history  |  undo/redo</text>
+  <!-- Arrow -->
+  <line x1="350" y1="122" x2="350" y2="142" stroke="#2EC4B6" stroke-width="1.5" opacity="0.5"/>
+  <polygon points="345,140 350,150 355,140" fill="#2EC4B6" opacity="0.5"/>
+  <!-- Layer 2: Core Engine -->
+  <rect x="40" y="155" width="620" height="100" rx="8" fill="url(#layer2)" stroke="#8B5CF6" stroke-width="1" stroke-opacity="0.4"/>
+  <text x="60" y="177" font-family="system-ui, sans-serif" font-size="12" fill="#A78BFA" font-weight="700">Core Engine</text>
+  <!-- NL Parser box -->
+  <rect x="60" y="190" width="140" height="52" rx="6" fill="#8B5CF6" opacity="0.15" stroke="#8B5CF6" stroke-width="0.5" stroke-opacity="0.3"/>
+  <text x="130" y="210" font-family="system-ui, sans-serif" font-size="11" fill="#C4B5FD" text-anchor="middle" font-weight="600">NL Parser</text>
+  <text x="130" y="228" font-family="monospace" font-size="9" fill="#64748B" text-anchor="middle">자연어 → 구조화 쿼리</text>
+  <!-- Search box -->
+  <rect x="220" y="190" width="180" height="52" rx="6" fill="#8B5CF6" opacity="0.15" stroke="#8B5CF6" stroke-width="0.5" stroke-opacity="0.3"/>
+  <text x="310" y="210" font-family="system-ui, sans-serif" font-size="11" fill="#C4B5FD" text-anchor="middle" font-weight="600">Search (3-Step Fallback)</text>
+  <text x="310" y="228" font-family="monospace" font-size="9" fill="#64748B" text-anchor="middle">redirect → complex → region</text>
+  <!-- Filter & Export box -->
+  <rect x="420" y="190" width="220" height="52" rx="6" fill="#8B5CF6" opacity="0.15" stroke="#8B5CF6" stroke-width="0.5" stroke-opacity="0.3"/>
+  <text x="530" y="210" font-family="system-ui, sans-serif" font-size="11" fill="#C4B5FD" text-anchor="middle" font-weight="600">Filter &amp; Export</text>
+  <text x="530" y="228" font-family="monospace" font-size="9" fill="#64748B" text-anchor="middle">평형/가격/층/태그 | CSV/JSON/Excel</text>
+  <!-- Arrow -->
+  <line x1="350" y1="257" x2="350" y2="277" stroke="#A78BFA" stroke-width="1.5" opacity="0.5"/>
+  <polygon points="345,275 350,285 355,275" fill="#A78BFA" opacity="0.5"/>
+  <!-- Layer 3: API Client -->
+  <rect x="40" y="290" width="620" height="80" rx="8" fill="url(#layer3)" stroke="#F59E0B" stroke-width="1" stroke-opacity="0.4"/>
+  <text x="60" y="312" font-family="system-ui, sans-serif" font-size="12" fill="#FBBF24" font-weight="700">NaverLandApiClient</text>
+  <text x="60" y="328" font-family="monospace" font-size="10" fill="#64748B">Anti-blocking HTTP Client</text>
+  <!-- Feature pills -->
+  <rect x="200" y="300" width="90" height="22" rx="11" fill="#F59E0B" opacity="0.15"/>
+  <text x="245" y="315" font-family="monospace" font-size="9" fill="#FBBF24" text-anchor="middle">UA Rotation</text>
+  <rect x="300" y="300" width="110" height="22" rx="11" fill="#F59E0B" opacity="0.15"/>
+  <text x="355" y="315" font-family="monospace" font-size="9" fill="#FBBF24" text-anchor="middle">Adaptive Delay</text>
+  <rect x="420" y="300" width="100" height="22" rx="11" fill="#F59E0B" opacity="0.15"/>
+  <text x="470" y="315" font-family="monospace" font-size="9" fill="#FBBF24" text-anchor="middle">Session Rotate</text>
+  <rect x="530" y="300" width="100" height="22" rx="11" fill="#F59E0B" opacity="0.15"/>
+  <text x="580" y="315" font-family="monospace" font-size="9" fill="#FBBF24" text-anchor="middle">Rate Limiting</text>
+  <text x="200" y="355" font-family="monospace" font-size="9" fill="#475569">Exp. backoff  |  Cookie refresh  |  Client hints  |  Referer chain  |  Gaussian delay</text>
+  <!-- Arrow to API -->
+  <line x1="350" y1="372" x2="350" y2="392" stroke="#FBBF24" stroke-width="1.5" opacity="0.5"/>
+  <polygon points="345,390 350,400 355,390" fill="#FBBF24" opacity="0.5"/>
+  <!-- API target -->
+  <rect x="250" y="398" width="200" height="18" rx="4" fill="#1E293B"/>
+  <text x="350" y="412" font-family="monospace" font-size="10" fill="#475569" text-anchor="middle">m.land.naver.com</text>
+</svg>

@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 340">
+  <defs>
+    <linearGradient id="step-ok" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#2EC4B6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#20A4F3;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="step-warn" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#F59E0B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FBBF24;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="step-slow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F97316;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="700" height="340" rx="10" fill="#0D1117"/>
+  <text x="350" y="30" font-family="system-ui, sans-serif" font-size="15" fill="#E2E8F0" text-anchor="middle" font-weight="700">3-Step Fallback Search Strategy</text>
+  <!-- Step 1 -->
+  <rect x="40" y="55" width="200" height="110" rx="8" fill="#2EC4B6" opacity="0.1" stroke="#2EC4B6" stroke-width="1.5" stroke-opacity="0.5"/>
+  <rect x="40" y="55" width="200" height="28" rx="8" fill="#2EC4B6" opacity="0.2"/>
+  <rect x="40" y="75" width="200" height="0" fill="none"/>
+  <text x="60" y="74" font-family="system-ui, sans-serif" font-size="12" fill="#2EC4B6" font-weight="700">Step 1 : Search Redirect</text>
+  <text x="60" y="100" font-family="monospace" font-size="10" fill="#94A3B8">GET /search/result/목동7단지</text>
+  <text x="60" y="118" font-family="monospace" font-size="10" fill="#94A3B8">302 → /complex/info/659</text>
+  <text x="60" y="136" font-family="monospace" font-size="10" fill="#64748B">→ hscpNo = 659</text>
+  <rect x="60" y="145" width="50" height="16" rx="8" fill="#2EC4B6" opacity="0.25"/>
+  <text x="85" y="157" font-family="monospace" font-size="9" fill="#2EC4B6" text-anchor="middle" font-weight="700">~15s</text>
+  <text x="120" y="157" font-family="monospace" font-size="9" fill="#475569">1 HTTP call</text>
+  <!-- Arrow 1→2 -->
+  <line x1="242" y1="110" x2="270" y2="110" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="256" y="102" font-family="system-ui, sans-serif" font-size="9" fill="#EF4444">fail</text>
+  <polygon points="268,106 278,110 268,114" fill="#475569"/>
+  <!-- Step 2 -->
+  <rect x="280" y="55" width="180" height="110" rx="8" fill="#F59E0B" opacity="0.1" stroke="#F59E0B" stroke-width="1.5" stroke-opacity="0.5"/>
+  <rect x="280" y="55" width="180" height="28" rx="8" fill="#F59E0B" opacity="0.2"/>
+  <text x="300" y="74" font-family="system-ui, sans-serif" font-size="12" fill="#FBBF24" font-weight="700">Step 2 : ComplexList</text>
+  <text x="300" y="100" font-family="monospace" font-size="10" fill="#94A3B8">GET complexList</text>
+  <text x="300" y="118" font-family="monospace" font-size="10" fill="#94A3B8">→ hscpNm match</text>
+  <text x="300" y="136" font-family="monospace" font-size="10" fill="#64748B">→ hscpNo = 659</text>
+  <rect x="300" y="145" width="55" height="16" rx="8" fill="#F59E0B" opacity="0.25"/>
+  <text x="327" y="157" font-family="monospace" font-size="9" fill="#FBBF24" text-anchor="middle" font-weight="700">~60s</text>
+  <text x="365" y="157" font-family="monospace" font-size="9" fill="#475569">5+ pages</text>
+  <!-- Arrow 2→3 -->
+  <line x1="462" y1="110" x2="490" y2="110" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="476" y="102" font-family="system-ui, sans-serif" font-size="9" fill="#EF4444">fail</text>
+  <polygon points="488,106 498,110 488,114" fill="#475569"/>
+  <!-- Step 3 -->
+  <rect x="500" y="55" width="160" height="110" rx="8" fill="#EF4444" opacity="0.1" stroke="#EF4444" stroke-width="1.5" stroke-opacity="0.5"/>
+  <rect x="500" y="55" width="160" height="28" rx="8" fill="#EF4444" opacity="0.2"/>
+  <text x="520" y="74" font-family="system-ui, sans-serif" font-size="12" fill="#F87171" font-weight="700">Step 3 : Region Scan</text>
+  <text x="520" y="100" font-family="monospace" font-size="10" fill="#94A3B8">GET articleList</text>
+  <text x="520" y="118" font-family="monospace" font-size="10" fill="#94A3B8">→ all pages</text>
+  <text x="520" y="136" font-family="monospace" font-size="10" fill="#64748B">→ client filter</text>
+  <rect x="520" y="145" width="55" height="16" rx="8" fill="#EF4444" opacity="0.25"/>
+  <text x="547" y="157" font-family="monospace" font-size="9" fill="#F87171" text-anchor="middle" font-weight="700">~150s</text>
+  <text x="585" y="157" font-family="monospace" font-size="9" fill="#475569">25+ calls</text>
+  <!-- Success arrows down -->
+  <line x1="140" y1="167" x2="140" y2="195" stroke="#2EC4B6" stroke-width="1.5"/>
+  <polygon points="135,193 140,203 145,193" fill="#2EC4B6"/>
+  <line x1="370" y1="167" x2="370" y2="195" stroke="#FBBF24" stroke-width="1.5"/>
+  <polygon points="365,193 370,203 375,193" fill="#FBBF24"/>
+  <line x1="580" y1="167" x2="580" y2="195" stroke="#F87171" stroke-width="1.5"/>
+  <polygon points="575,193 580,203 585,193" fill="#F87171"/>
+  <text x="155" y="190" font-family="system-ui, sans-serif" font-size="9" fill="#2EC4B6">success</text>
+  <text x="385" y="190" font-family="system-ui, sans-serif" font-size="9" fill="#FBBF24">success</text>
+  <text x="595" y="190" font-family="system-ui, sans-serif" font-size="9" fill="#F87171">success</text>
+  <!-- Merge box -->
+  <rect x="120" y="210" width="480" height="50" rx="8" fill="#1E293B" stroke="#2EC4B6" stroke-width="1" stroke-opacity="0.3"/>
+  <text x="360" y="234" font-family="system-ui, sans-serif" font-size="13" fill="#E2E8F0" text-anchor="middle" font-weight="600">getComplexArticleList(hscpNo, tradTpCd, page)</text>
+  <text x="360" y="250" font-family="monospace" font-size="10" fill="#64748B" text-anchor="middle">paginated fetch → NaverListing[] → result</text>
+  <!-- Final arrow -->
+  <line x1="360" y1="262" x2="360" y2="280" stroke="#2EC4B6" stroke-width="1.5"/>
+  <polygon points="355,278 360,288 365,278" fill="#2EC4B6"/>
+  <!-- Result -->
+  <rect x="230" y="290" width="240" height="35" rx="8" fill="#2EC4B6" opacity="0.15" stroke="#2EC4B6" stroke-width="1" stroke-opacity="0.4"/>
+  <text x="350" y="313" font-family="system-ui, sans-serif" font-size="13" fill="#2EC4B6" text-anchor="middle" font-weight="700">54 listings returned  ⚡ 15.2s</text>
+</svg>
