@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireApproved } from '@/lib/auth-middleware'
 import { supabaseAdmin } from '@/lib/supabase'
 import { searchRegionSchema } from '@/lib/validators'
+import { fetchArticles, isKnownDistrict } from '@/lib/naver-api'
 import { formatPriceShort } from '@/domain/price'
 import type { ApiResponse } from '@/types/api'
 import type { Listing, SearchMeta } from '@/types/listing'
 
-function mapRow(row: Record<string, unknown>): Listing {
+function mapDbRow(row: Record<string, unknown>): Listing {
   return {
     atclNo: row.atcl_no as string,
     atclNm: row.atcl_nm as string,
@@ -48,10 +49,11 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  try {
-    const { district, tradeTypes, sizeType, minPrice, maxPrice, sort, limit } = parsed.data
+  const { district, city, tradeTypes: tradeTypesStr, sizeType, minPrice, maxPrice, sort, limit } = parsed.data
+  const tradeTypes = tradeTypesStr?.split(',').filter(Boolean) || []
 
-    // 최신 snapshot의 매물을 DB에서 조회
+  try {
+    // 1) DB에서 먼저 조회
     let query = supabaseAdmin
       .from('listings')
       .select('*')
@@ -59,61 +61,64 @@ export async function GET(request: NextRequest) {
       .order('collected_at', { ascending: false })
       .limit(limit || 1000)
 
-    if (tradeTypes) {
-      const types = tradeTypes.split(',').filter(Boolean)
-      if (types.length > 0) {
-        query = query.in('trade_type', types)
-      }
+    if (tradeTypes.length > 0) query = query.in('trade_type', tradeTypes)
+    if (sizeType) query = query.eq('size_type', sizeType)
+    if (minPrice) query = query.gte('price', minPrice)
+    if (maxPrice) query = query.lte('price', maxPrice)
+
+    const { data: dbRows } = await query
+    const latestSnapshot = dbRows?.[0]?.snapshot_id
+    const dbListings = latestSnapshot
+      ? (dbRows || []).filter(r => r.snapshot_id === latestSnapshot).map(mapDbRow)
+      : []
+
+    // 2) DB에 데이터가 없으면 네이버 API 실시간 호출
+    let listings: Listing[]
+    let source: string
+
+    if (dbListings.length > 0) {
+      listings = dbListings
+      source = 'db'
+    } else if (isKnownDistrict(district)) {
+      const naverResults = await fetchArticles(district, {
+        tradeTypes: tradeTypes.length > 0 ? tradeTypes : undefined,
+        sort,
+        limit: limit || 500,
+      })
+
+      listings = naverResults.map(n => ({
+        ...n,
+        districtCode: '',
+        districtName: district,
+        cityName: city || '서울시',
+        collectedAt: new Date().toISOString(),
+        snapshotId: 'realtime',
+      }))
+
+      // 클라이언트 사이드 필터
+      if (sizeType) listings = listings.filter(l => l.sizeType === sizeType)
+      if (minPrice) listings = listings.filter(l => l.price >= minPrice)
+      if (maxPrice) listings = listings.filter(l => l.price <= maxPrice)
+
+      source = 'realtime'
+    } else {
+      listings = []
+      source = 'none'
     }
-
-    if (sizeType) {
-      query = query.eq('size_type', sizeType)
-    }
-
-    if (minPrice) {
-      query = query.gte('price', minPrice)
-    }
-
-    if (maxPrice) {
-      query = query.lte('price', maxPrice)
-    }
-
-    if (sort === 'prc') {
-      query = query.order('price', { ascending: true })
-    } else if (sort === 'spc') {
-      query = query.order('exclusive_area', { ascending: false })
-    } else if (sort === 'date') {
-      query = query.order('confirm_date', { ascending: false })
-    }
-
-    const { data: rows, error } = await query
-
-    if (error) {
-      return NextResponse.json(
-        { success: false, error: { code: 'DB_ERROR', message: error.message } },
-        { status: 500 }
-      )
-    }
-
-    // 최신 snapshot만 필터 (같은 snapshot_id)
-    const allListings = (rows || []).map(mapRow)
-    const latestSnapshot = allListings[0]?.snapshotId
-    const listings = latestSnapshot
-      ? allListings.filter(l => l.snapshotId === latestSnapshot)
-      : allListings
 
     const totalPrice = listings.reduce((sum, l) => sum + l.price, 0)
     const avgPrice = listings.length > 0 ? Math.round(totalPrice / listings.length) : 0
 
-    const meta: SearchMeta = {
+    const meta: SearchMeta & { source: string } = {
       total: listings.length,
       district,
-      city: listings[0]?.cityName || params.city || '',
+      city: city || listings[0]?.cityName || '서울시',
       avgPrice,
       avgPriceDisplay: formatPriceShort(avgPrice),
+      source,
     }
 
-    const response: ApiResponse<{ listings: Listing[]; meta: SearchMeta }> = {
+    const response: ApiResponse<{ listings: Listing[]; meta: typeof meta }> = {
       success: true,
       data: { listings, meta },
     }

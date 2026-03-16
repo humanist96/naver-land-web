@@ -46,7 +46,7 @@ export function DashboardFilter({
       >
         <option value="">구/군 선택</option>
         {city === '서울시' && SEOUL_DISTRICTS.map(d => (
-          <option key={d.code} value={`${d.cityCode}${d.code}00000`}>{d.name}</option>
+          <option key={d.code} value={d.name}>{d.name}</option>
         ))}
       </select>
 

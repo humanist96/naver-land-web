@@ -4,13 +4,13 @@ import type { DashboardOverview, PriceTrendData, SizeDistributionData } from '@/
 import type { ListingChange } from '@/types/listing'
 
 export async function getOverview(
-  districtCode: string,
+  districtName: string,
   tradeType: string = '매매'
 ): Promise<DashboardOverview> {
   const { data: snapshots } = await supabaseAdmin
     .from('market_snapshots')
     .select('*')
-    .eq('district_code', districtCode)
+    .eq('district_name', districtName)
     .eq('trade_type', tradeType)
     .order('snapshot_date', { ascending: false })
     .limit(2)
@@ -56,7 +56,7 @@ export async function getOverview(
 }
 
 export async function getPriceTrend(
-  districtCode: string,
+  districtName: string,
   period: string = '1m',
   tradeTypes: string[] = ['매매', '전세']
 ): Promise<PriceTrendData> {
@@ -70,7 +70,7 @@ export async function getPriceTrend(
   const { data: snapshots } = await supabaseAdmin
     .from('market_snapshots')
     .select('snapshot_date, trade_type, avg_price')
-    .eq('district_code', districtCode)
+    .eq('district_name', districtName)
     .in('trade_type', tradeTypes)
     .gte('snapshot_date', since.toISOString().split('T')[0])
     .order('snapshot_date', { ascending: true })
@@ -101,7 +101,7 @@ export async function getPriceTrend(
 }
 
 export async function getListingChanges(
-  districtCode: string,
+  districtName: string,
   days: number = 7
 ): Promise<{ labels: string[]; newCounts: number[]; removedCounts: number[] }> {
   const since = new Date()
@@ -110,7 +110,7 @@ export async function getListingChanges(
   const { data: snapshots } = await supabaseAdmin
     .from('market_snapshots')
     .select('snapshot_date, new_count, removed_count')
-    .eq('district_code', districtCode)
+    .eq('district_name', districtName)
     .gte('snapshot_date', since.toISOString().split('T')[0])
     .order('snapshot_date', { ascending: true })
 
@@ -126,13 +126,13 @@ export async function getListingChanges(
 }
 
 export async function getSizeDistribution(
-  districtCode: string,
+  districtName: string,
   tradeType: string = '매매'
 ): Promise<SizeDistributionData[]> {
   const { data: snapshots } = await supabaseAdmin
     .from('market_snapshots')
     .select('size_distribution')
-    .eq('district_code', districtCode)
+    .eq('district_name', districtName)
     .eq('trade_type', tradeType)
     .order('snapshot_date', { ascending: false })
     .limit(1)
@@ -155,12 +155,12 @@ export async function getSizeDistribution(
 }
 
 export async function getTradeComparison(
-  districtCode: string
+  districtName: string
 ): Promise<{ tradeType: string; avgPrice: number; avgPriceDisplay: string; count: number }[]> {
   const { data: snapshots } = await supabaseAdmin
     .from('market_snapshots')
     .select('trade_type, avg_price, total_count, snapshot_date')
-    .eq('district_code', districtCode)
+    .eq('district_name', districtName)
     .order('snapshot_date', { ascending: false })
     .limit(10)
 
@@ -180,14 +180,14 @@ export async function getTradeComparison(
 }
 
 export async function getRecentChanges(
-  districtCode: string,
+  districtName: string,
   changeType?: string,
   limit: number = 20
 ): Promise<{ changes: ListingChange[]; summary: Record<string, number> }> {
   let query = supabaseAdmin
     .from('listing_changes')
     .select('*')
-    .eq('district_code', districtCode)
+    .eq('district_name', districtName)
     .order('detected_at', { ascending: false })
     .limit(limit)
 
